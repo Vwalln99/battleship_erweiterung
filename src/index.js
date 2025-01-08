@@ -88,6 +88,8 @@ function generateBoard(boardId, gameboard) {
             console.log(`Schiff platziert: ${selectShip.name} auf ${x}, ${y}`);
             updateBoard(boardDiv, gameboard);
         }
+    }else{
+        alert("Fehler bei der Platzierung des Schiffes!")
     }
   }
 
@@ -109,13 +111,14 @@ function handleCPUBoardClick(x, y, gameboard, boardDiv) {
   }
 }
 
+
 // UI aktualisieren
 function updateBoard(boardDiv, gameboard) {
   for (let i = 0; i < 10; i++) {
     for (let j = 0; j < 10; j++) {
       const cell = boardDiv.children[i * 10 + j];
       if (gameboard.isCellOccupied(i, j)) {
-        cell.style.backgroundColor = "gray";
+        cell.style.backgroundColor = "green";
       }
     }
   }
