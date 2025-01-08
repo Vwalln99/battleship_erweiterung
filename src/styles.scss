@@ -1,18 +1,21 @@
-body {
-  display: flex;
+#app {
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  text-align: center;
   margin: 0;
 }
+h1 {
+  margin: 3rem;
+  text-align: center;
+}
+
 #playerBoard,
 #cpuBoard {
   display: grid;
   grid-template-columns: repeat(10, 30px);
   grid-template-rows: repeat(10, 30px);
   gap: 2px;
-  margin: 10px 0;
-  border: 1px solid black;
+  margin: 100px;
 }
 
 #playerBoard div,
@@ -20,11 +23,39 @@ body {
   width: 30px;
   height: 30px;
   border: 1px solid #000;
+  background-color: gray;
   text-align: center;
   line-height: 30px;
-  cursor: pointer;
 }
 
 button {
   margin: 5px;
+}
+
+.hit {
+  background-color: red;
+}
+.miss {
+  background-color: blue;
+}
+
+.cell {
+  width: 30px;
+  height: 30px;
+  background-color: rgb(124, 117, 117);
+  border: 1px solid black;
+}
+
+.cpuContainer {
+  margin: 3rem;
+  border: #000 solid 1px;
+  display: flex;
+  width: 50rem;
+}
+
+.playerContainer {
+  margin: 3rem;
+  border: #000 solid 1px;
+  display: flex;
+  width: 50rem;
 }

@@ -7,13 +7,21 @@ import { Captain } from "./modules/captain";
 let gameboardPlayer = new Gameboard();
 let player = new Player("Viktoria");
 let gameboardKI = new Gameboard();
-//added captains and new logic for placing ships manually for player
+//added captains and new logic for ing ships manually for player
 let selectedCaptain = null;
 let selectedShip = null;
+let gameStarted = false;
+
+document.getElementById("playerTitle").textContent = `${player.name}'s Spielfeld`;
+
 
 gameboardPlayer.createGameboard();
 gameboardKI.createGameboard();
 gameboardKI.createShipsCPU();
+
+//create gameboard
+generateBoard("playerBoard", gameboardPlayer, handlePlayerBoardClick);
+generateBoard("cpuBoard", gameboardKI, handleCPUBoardClick);
 
 //captain selection
 document.getElementById("williamButton").addEventListener("click", () => selectCaptain("William"));
@@ -61,24 +69,86 @@ function generateBoard(boardId, gameboard) {
     for (let i = 0; i < 10; i++) {
       for (let j = 0; j < 10; j++) {
         const cell = document.createElement("div");
-        cell.addEventListener("click", () => handleCellClick(i, j, gameboard));
+        cell.classList.add("cell");
+        if (boardId === "playerBoard") {
+            cell.addEventListener("click", () => handlePlayerBoardClick(i, j, gameboard, boardDiv));
+          } else if (boardId === "cpuBoard") {
+            cell.addEventListener("click", () => handleCPUBoardClick(i, j, gameboard, boardDiv));
+          }
+          
         boardDiv.appendChild(cell);
       }
     }
   }
   
-  generateBoard("playerBoard", gameboardPlayer);
-  generateBoard("cpuBoard",gameboardKI);
-  
-  function handleCellClick(x, y, gameboard) {
-    if (selectedShip) {
-      // Place the ship on the player's gameboard
-      if (gameboard.placeShip(selectedShip, x, y)) {
-        console.log(`Schiff platziert: ${selectedShip.name} auf (${x}, ${y})`);
-      }
+  //player board click handler
+  function handlePlayerBoardClick(x, y, gameboard, boardDiv){
+    if(selectShip && !gameStarted){
+        if(gameboard.placeShip(selectShip, x, y)){
+            console.log(`Schiff platziert: ${selectShip.name} auf ${x}, ${y}`);
+            updateBoard(boardDiv, gameboard);
+        }
     }
   }
 
-gameboardKI.placeShipsCPU();
 
+  // KI click handler
+function handleCPUBoardClick(x, y, gameboard, boardDiv) {
+  if (gameStarted && !gameboard.isCellAttacked(x, y)) {
+    const hit = gameboard.receiveAttack(x, y);
+    boardDiv.children[x * 10 + y].style.backgroundColor = hit ? "red" : "blue";
+    console.log(hit ? `Treffer auf (${x}, ${y})!` : `Verfehlt auf (${x}, ${y}).`);
+
+    if (gameboard.allShipsSunk()) {
+      alert("Du hast gewonnen!");
+      return;
+    }
+
+    
+    performCPUAttack();
+  }
+}
+
+// UI aktualisieren
+function updateBoard(boardDiv, gameboard) {
+  for (let i = 0; i < 10; i++) {
+    for (let j = 0; j < 10; j++) {
+      const cell = boardDiv.children[i * 10 + j];
+      if (gameboard.isCellOccupied(i, j)) {
+        cell.style.backgroundColor = "gray";
+      }
+    }
+  }
+}
+
+// KI angriff
+function performCPUAttack() {
+  let x, y;
+  do {
+    x = Math.floor(Math.random() * 10);
+    y = Math.floor(Math.random() * 10);
+  } while (gameboardPlayer.isCellAttacked(x, y));
+
+  const hit = gameboardPlayer.receiveAttack(x, y);
+  const boardDiv = document.getElementById("playerBoard");
+  boardDiv.children[x * 10 + y].style.backgroundColor = hit ? "red" : "blue";
+
+  console.log(hit ? `KI trifft auf (${x}, ${y})!` : `KI verfehlt auf (${x}, ${y}).`);
+
+  if (gameboardPlayer.allShipsSunk()) {
+    alert("Die KI hat gewonnen!");
+  }
+}
+
+// Spiel starten
+function startGame() {
+  if (gameboardPlayer.ships.length >= 10) {
+    gameStarted = true;
+    console.log("Spiel startet!");
+  } else {
+    alert("Platziere zuerst alle Schiffe.");
+  }
+}
+
+document.getElementById("startGameButton").addEventListener("click", startGame);
 

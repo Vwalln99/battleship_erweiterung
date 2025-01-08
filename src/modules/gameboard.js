@@ -7,7 +7,37 @@ class Gameboard {
     this.gameboard = [];
     this.ships = [];
     this.counter = 0;
+    //added more functionality
+    this.attackedCells = [];
   }
+
+  //validation attack
+  isCellAttacked(x, y) {
+    return this.attackedCells.some(cell => cell.x === x && cell.y === y);
+  }
+
+  receiveAttack(x, y) {
+   
+    if (this.isCellAttacked(x, y)) {
+      console.log("Bereits angegriffen.");
+      return false;
+    }
+
+    this.attackedCells.push({ x, y });
+
+    if (this.gameboard[x][y] !== 0) {
+      console.log("Treffer!");
+      return true;
+    } else {
+      console.log("Verfehlt!");
+      return false;
+    }
+  }
+
+  allShipsSunk() {
+    return this.ships.every(ship => ship.isSunk);
+  }
+
 
   createGameboard() {
     for (let i = 0; i < 10; i++) {
@@ -22,10 +52,10 @@ class Gameboard {
   placeShip(ship, x, y) {
     let z = 1;
     if (this.gameboard[x][y] !== 0) {
-      console.log("Hallo, hier ist ein Schiff! Platziere es bitte wo anders");
+      console.log("Platziere dein Schiff bitte wo anders");
     } else {
-      for (let i = 0; i < ship.shipLength(); i++) {
-        if ([x + i] > 9) {
+      for (let i = 0; i < ship.shipLength; i++) {
+        if (x + i > 9) {
           this.gameboard[x - z][y] = ship.shipNumber;
           z++;
         } else {
@@ -60,65 +90,62 @@ class Gameboard {
         z = 1;
       } while (!this.isPlacementValid(x, y, ship));
 
-      for (let i = 0; i < ship.shipLength(); i++) {
+      for (let i = 0; i < ship.shipLength; i++) {
         if (x + i > 9) {
           this.gameboard[x - z][y] = ship.shipNumber;
           z++;
-        } else if (x + i < 9){
+        } else if (x + i < 9) {
           this.gameboard[x + i][y] = ship.shipNumber;
-        }else{
+        } else {
           this.placeShipShape(ship, x, y);
         }
       }
     }
   }
-    placeShipShape(ship, x, y) {
-      const shape = ship.shape;
 
-  
-      switch (shape) {
-        case "line":
-          for (let i = 0; i < ship.length; i++) {
+  placeShipShape(ship, x, y) {
+    const shape = ship.shape;
+
+    switch (shape) {
+      case "line":
+        for (let i = 0; i < ship.shipLength; i++) {
+          if (x + i < 10) this.gameboard[x + i][y] = ship.shipNumber;
+        }
+        break;
+
+      case "square":
+        for (let i = 0; i < 2; i++) {
+          for (let j = 0; j < 2; j++) {
+            if (x + i < 10 && y + j < 10) this.gameboard[x + i][y + j] = ship.shipNumber;
+          }
+        }
+        break;
+
+      case "L":
+        for (let i = 0; i < ship.shipLength; i++) {
+          if (i < ship.shipLength - 1) {
             if (x + i < 10) this.gameboard[x + i][y] = ship.shipNumber;
+          } else {
+            if (x + i - 1 < 10 && y + 1 < 10) this.gameboard[x + i - 1][y + 1] = ship.shipNumber;
           }
-          break;
-  
-        case "square":
-          for (let i = 0; i < 2; i++) {
-            for (let j = 0; j < 2; j++) {
-              if (x + i < 10 && y + j < 10) this.gameboard[x + i][y + j] = ship.shipNumber;
-            }
-          }
-          break;
-  
-        case "L":
-          for (let i = 0; i < Ship.length; i++) {
-            if (i < Ship.length - 1) {
-              if (x + i < 10) this.gameboard[x + i][y] = ship.shipNumber;
-            } else {
-              if (x + i - 1 < 10 && y + 1 < 10) this.gameboard[x + i - 1][y + 1] = ship.shipNumber;
-            }
-          }
-          break;
-  
-        case "T":
-          for (let i = 0; i < 3; i++) {
-            if (x < 10 && y - 1 + i < 10) this.gameboard[x][y - 1 + i] = ship.shipNumber;
-          }
-          if (x + 1 < 10) this.gameboard[x + 1][y] = ship.shipNumber;
-          break;
-  
-        case "dot":
-          if (x < 10 && y < 10) this.gameboard[x][y] = ship.shipNumber;
-          break;
-      }
-    }  
-  
+        }
+        break;
 
-  
+      case "T":
+        for (let i = 0; i < 3; i++) {
+          if (x < 10 && y - 1 + i < 10) this.gameboard[x][y - 1 + i] = ship.shipNumber;
+        }
+        if (x + 1 < 10) this.gameboard[x + 1][y] = ship.shipNumber;
+        break;
+
+      case "dot":
+        if (x < 10 && y < 10) this.gameboard[x][y] = ship.shipNumber;
+        break;
+    }
+  }
 
   isPlacementValid(x, y, ship) {
-    for (let i = 0; i < ship.shipLength(); i++) {
+    for (let i = 0; i < ship.shipLength; i++) {
       if (x + i > 9 || this.gameboard[x + i][y] !== 0) {
         return false;
       }
@@ -132,7 +159,7 @@ class Gameboard {
     if (ship) {
       ship.timesHit++;
       this.gameboard[x][y] = "Treffer";
-      if (ship.timesHit === ship.shipLength()) {
+      if (ship.timesHit === ship.shipLength) {
         ship.isSunk = true;
         console.log(`Du hast ${ship.name} versenkt!`);
         return "Versenkt";
@@ -146,7 +173,7 @@ class Gameboard {
       return "Verfehlt";
     }
   }
-  //new ship forms
+
   placeCustomShip(ship, shape, x, y) {
     const shapes = {
       "line": [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]],
@@ -171,8 +198,5 @@ class Gameboard {
     this.ships.push(ship);
   }
 }
-
-
-
 
 export { Gameboard };

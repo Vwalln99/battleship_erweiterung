@@ -10,6 +10,7 @@
   <body>
     <div id="app">
       <h1>Schiffe versenken</h1>
+      <button id="startGameButton">Spiel starten</button>
 
       <!-- Captain Selection -->
       <div>
@@ -37,12 +38,16 @@
       </div>
 
       <!-- Gameboard for player -->
-      <h2>Dein Spielfeld</h2>
-      <div id="playerBoard"></div>
+      <div class="playerContainer">
+        <h2 id="playerTitle"></h2>
 
-      <!-- Gameboard for KI -->
-      <h2>Gegner Spielfeld</h2>
-      <div id="cpuBoard"></div>
+        <div id="playerBoard"></div>
+      </div>
+      <div class="cpuContainer">
+        <!-- Gameboard for KI -->
+        <h2>Gegner Spielfeld</h2>
+        <div id="cpuBoard"></div>
+      </div>
     </div>
   </body>
 </html>
