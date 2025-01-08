@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Schiffe Versenken</title>
+    <script src="bundle.js" defer></script>
+    <link rel="stylesheet" href="styles.scss" />
+  </head>
+  <body>
+    <div id="app">
+      <h1>Schiffe versenken</h1>
+
+      <!-- Captain Selection -->
+      <div>
+        <h2>Wählen Sie Ihren Kapitän:</h2>
+        <button id="williamButton">William</button>
+        <button id="giuseppeButton">Giuseppe</button>
+        <button id="astridButton">Astrid</button>
+        <button id="katrinButton">Katrin</button>
+      </div>
+
+      <!-- Ship Placement -->
+      <div>
+        <h2>Platziere Deine Schiffe:</h2>
+        <div id="shipSelection">
+          <button id="carrierButton">Carrier (5)</button>
+          <button id="battleshipButton">Battleship (4)</button>
+          <button id="cruiserButton">Cruiser (3)</button>
+          <button id="submarineButton">Submarine (3)</button>
+          <button id="destroyerButton">Destroyer (2)</button>
+          <button id="dotButton">Dot (2)</button>
+          <button id="LButton">L-Form (3)</button>
+          <button id="TButton">T-Form (3)</button>
+          <button id="IButton">Square (4)</button>
+        </div>
+      </div>
+
+      <!-- Gameboard for player -->
+      <h2>Dein Spielfeld</h2>
+      <div id="playerBoard"></div>
+
+      <!-- Gameboard for KI -->
+      <h2>Gegner Spielfeld</h2>
+      <div id="cpuBoard"></div>
+    </div>
+  </body>
+</html>
