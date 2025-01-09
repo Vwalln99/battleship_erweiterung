@@ -18,6 +18,7 @@ document.getElementById("playerTitle").textContent = `${player.name}'s Spielfeld
 gameboardPlayer.createGameboard();
 gameboardKI.createGameboard();
 gameboardKI.createShipsCPU();
+//gameboardKI.placeShipsCPU();
 
 //create gameboard
 generateBoard("playerBoard", gameboardPlayer, handlePlayerBoardClick);
@@ -38,17 +39,19 @@ document.getElementById("destroyerButton").addEventListener("click", () => selec
 document.getElementById("dotButton").addEventListener("click", () => selectShip("dot", 1, "dot"));
 document.getElementById("LButton").addEventListener("click", () => selectShip("L-Form", 3, "L"));
 document.getElementById("TButton").addEventListener("click", () => selectShip("T-Form", 3, "T"));
-document.getElementById("IButton").addEventListener("click", () => selectShip("I-Form", 4, "I"));
+document.getElementById("SButton").addEventListener("click", () => selectShip("Square-Form", 4, "square"));
 
 //new function select captain
 function selectCaptain(captainName) {
-    selectedCaptain = new Captain(captainName, captainName);
+    selectedCaptain = new Captain(captainName);
     console.log(`Kapitan ausgewählt: ${captainName}`);
+    return selectedCaptain;
   }
   //new function add ships
   function selectShip(name, length, shape) {
     selectedShip = new Ship(name, length, Math.random().toString(36).substring(2), shape);
     console.log(`Schiff ausgewählt: ${name} mit Länge ${length} und Form ${shape}`);
+    return selectedShip;
   }  
 
   
@@ -83,14 +86,18 @@ function generateBoard(boardId, gameboard) {
   
   //player board click handler
   function handlePlayerBoardClick(x, y, gameboard, boardDiv){
-    if(selectShip && !gameStarted){
-        if(gameboard.placeShip(selectShip, x, y)){
+    
+    //console.log(selectShip());
+    if(selectedShip && !gameStarted){
+        if(gameboard.placeShip(selectedShip, x, y)){
+
             console.log(`Schiff platziert: ${selectShip.name} auf ${x}, ${y}`);
             updateBoard(boardDiv, gameboard);
         }
     }else{
         alert("Fehler bei der Platzierung des Schiffes!")
     }
+    console.log(gameboard);
   }
 
 
@@ -113,16 +120,23 @@ function handleCPUBoardClick(x, y, gameboard, boardDiv) {
 
 
 // UI aktualisieren
+
 function updateBoard(boardDiv, gameboard) {
-  for (let i = 0; i < 10; i++) {
-    for (let j = 0; j < 10; j++) {
-      const cell = boardDiv.children[i * 10 + j];
-      if (gameboard.isCellOccupied(i, j)) {
-        cell.style.backgroundColor = "green";
+    for (let i = 0; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        const cell = boardDiv.children[i * 10 + j];
+        if (gameboard.isCellOccupied(i, j)) {
+
+          if (gameboard.gameboard[i][j] !== 0 && gameboard.gameboard[i][j] !== "Treffer" && gameboard.gameboard[i][j] !== "X") {
+            cell.style.backgroundColor = "green";
+          }
+        } else {
+          cell.style.backgroundColor = "black";
+        }
       }
     }
   }
-}
+  
 
 // KI angriff
 function performCPUAttack() {
@@ -147,7 +161,7 @@ function performCPUAttack() {
 function startGame() {
   if (gameboardPlayer.ships.length >= 10) {
     gameStarted = true;
-    console.log("Spiel startet!");
+ alert("Spiel startet!");
   } else {
     alert("Platziere zuerst alle Schiffe.");
   }

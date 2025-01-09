@@ -12,9 +12,10 @@ class Gameboard {
   }
 
 //validation if cell is already occupied
- isCellOccupied(x, y) {
-    return this.gameboard[x][y] !== 0; 
+isCellOccupied(x, y) {
+  return this.gameboard[x][y] !== null && this.gameboard[x][y] !== undefined;
 }
+
 
   //validation attack
   isCellAttacked(x, y) {
@@ -57,24 +58,30 @@ class Gameboard {
   //modified placeShip for better logic and less code repetition
   placeShip(ship, x, y) {
     if (!this.isPlacementValid(x, y, ship)) {
-        console.log("Platziere dein Schiff bitte woanders");
-        return false;
+      console.log("Platziere dein Schiff bitte woanders");
+      return false;
     }
-
-    for (let i = 0; i < ship.shipLength; i++) {
-        if (this.isCellOccupied(x + i, y)) {
-            console.log("Ein Schiff befindet sich bereits auf diesem Platz.");
-            return false;
+  
+    console.log(`Placing ship: ${ship.name} at position (${x}, ${y})`);
+  
+    if (ship.shape !== "line") {
+      this.placeShipShape(ship, x, y); // Spezialformen platzieren
+    } else {
+      for (let i = 0; i < ship.length; i++) {
+        if (x + i > 9) {
+          console.log("Ship goes out of bounds horizontally.");
+          return false;
         }
-    }
-
-    for (let i = 0; i < ship.shipLength; i++) {
         this.gameboard[x + i][y] = ship.shipNumber;
+      }
     }
+  
     this.ships.push(ship);
-    console.log(`Schiff platziert: ${ship.name}`);
+    console.log(`Ship ${ship.name} placed successfully at (${x}, ${y})`);
     return true;
-}
+  }
+  
+ 
 
 
   createShipsCPU() {
@@ -92,73 +99,113 @@ class Gameboard {
   }
 
 //modified code for less code repetition and functionality
-  placeShipsCPU() {
-    for (const ship of this.ships) {
-        let x, y, z;
-        do {
-            x = Math.floor(Math.random() * 10);
-            y = Math.floor(Math.random() * 10);
-            z = 1;
-        } while (!this.isPlacementValid(x, y, ship) || this.isCellOccupied(x, y));
+pplaceShipsCPU() {
+  const shipShapes = ["line", "square", "L", "T", "dot"];
+  const shipLengths = { "line": 5, "square": 4, "L": 3, "T": 3, "dot": 1 };
 
-        for (let i = 0; i < ship.shipLength; i++) {
-            if (x + i > 9) {
-                this.gameboard[x - z][y] = ship.shipNumber;
-                z++;
-            } else if (x + i < 9) {
-                this.gameboard[x + i][y] = ship.shipNumber;
-            } else {
-                this.placeShipShape(ship, x, y);
-            }
-        }
-    }
+  for (let i = 0; i < 10; i++) {
+    let shipShape = shipShapes[Math.floor(Math.random() * shipShapes.length)];
+    let shipLength = shipLengths[shipShape];
+    let ship = new Ship(`Ship${i + 1}`, shipLength, Math.random().toString(36).substring(2), shipShape);
+
+    let x, y;
+    do {
+      x = Math.floor(Math.random() * 10);
+      y = Math.floor(Math.random() * 10);
+    } while (!this.isPlacementValid(x, y, ship) || this.isCellOccupied(x, y));
+
+    this.placeShipShape(ship, x, y);
+    this.ships.push(ship);
+    console.log(`CPU-Schiff ${ship.name} platziert: ${ship.shipNumber} bei (${x}, ${y})`);
+  }
 }
 
 
   //place the new shipforms
   placeShipShape(ship, x, y) {
     const shape = ship.shape;
-    const coords = this.getShapeCoords(shape, ship.shipLength);
 
-    for (const [dx, dy] of coords) {
-      const nx = x + dx;
-      const ny = y + dy;
-      if (nx < 0 || nx >= 10 || ny < 0 || ny >= 10 || this.isCellOccupied(nx, ny)) {
-        console.log("Schiff passt hier nicht hin");
-        return;
-      }
+    switch (shape) {
+      case "line":
+        for (let i = 0; i < ship.length; i++) {
+          if (x + i < 10) this.gameboard[x + i][y] = ship.shipNumber;
+        }
+        break;
+
+      case "square":
+        for (let i = 0; i < 2; i++) {
+          for (let j = 0; j < 2; j++) {
+            if (x + i < 10 && y + j < 10) this.gameboard[x + i][y + j] = ship.shipNumber;
+          }
+        }
+        break;
+
+      case "L":
+        for (let i = 0; i < ship.length; i++) {
+          if (i < ship.length - 1) {
+            if (x + i < 10) this.gameboard[x + i][y] = ship.shipNumber;
+          } else {
+            if (x + i - 1 < 10 && y + 1 < 10) this.gameboard[x + i - 1][y + 1] = ship.shipNumber;
+          }
+        }
+        break;
+
+      case "T":
+        for (let i = 0; i < 3; i++) {
+          if (x < 10 && y - 1 + i < 10) this.gameboard[x][y - 1 + i] = ship.shipNumber;
+        }
+        if (x + 1 < 10) this.gameboard[x + 1][y] = ship.shipNumber;
+        break;
+
+      case "dot":
+        if (x < 10 && y < 10) this.gameboard[x][y] = ship.shipNumber;
+        break;
     }
-
-    for (const [dx, dy] of coords) {
-      const nx = x + dx;
-      const ny = y + dy;
-      this.gameboard[nx][ny] = ship.shipNumber;
-    }
-
-    this.ships.push(ship);
-    console.log(`Schiff platziert: ${ship.name}`);
-}
-
-getShapeCoords(shape) {
-    const shapes = {
-      "line": [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]],
-      "square": [[0, 0], [0, 1], [1, 0], [1, 1]],
-      "L": [[0, 0], [1, 0], [2, 0], [2, 1]],
-      "T": [[0, 1], [1, 0], [1, 1], [1, 2]],
-      "dot": [[0, 0]]
-    };
-    return shapes[shape] || [];
-}
-
+  }
 
   isPlacementValid(x, y, ship) {
-    for (let i = 0; i < ship.shipLength; i++) {
-      if (x + i > 9 || this.gameboard[x + i][y] !== 0) {
-        return false;
-      }
+    const shape = ship.shape;
+
+    switch (shape) {
+      case "line":
+        for (let i = 0; i < ship.length; i++) {
+          if (x + i >= 10 || this.gameboard[x + i][y] !== 0) return false;
+        }
+        break;
+
+      case "square":
+        for (let i = 0; i < 2; i++) {
+          for (let j = 0; j < 2; j++) {
+            if (x + i >= 10 || y + j >= 10 || this.gameboard[x + i][y + j] !== 0) return false;
+          }
+        }
+        break;
+
+      case "L":
+        for (let i = 0; i < ship.length; i++) {
+          if (i < ship.length - 1) {
+            if (x + i >= 10 || this.gameboard[x + i][y] !== 0) return false;
+          } else {
+            if (x + i - 1 >= 10 || y + 1 >= 10 || this.gameboard[x + i - 1][y + 1] !== 0) return false;
+          }
+        }
+        break;
+
+      case "T":
+        for (let i = 0; i < 3; i++) {
+          if (x >= 10 || y - 1 + i >= 10 || this.gameboard[x][y - 1 + i] !== 0) return false;
+        }
+        if (x + 1 >= 10 || this.gameboard[x + 1][y] !== 0) return false;
+        break;
+
+      case "dot":
+        if (x >= 10 || y >= 10 || this.gameboard[x][y] !== 0) return false;
+        break;
     }
+
     return true;
   }
+
 
   attackShip(x, y) {
     const currentItem = this.gameboard[x][y];
