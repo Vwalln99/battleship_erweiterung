@@ -20,10 +20,10 @@ class Captain {
       for (let i = 0; i < 10; i++) {
         if (gameboard[x][i] !== 0 && gameboard[x][i] !== "X") {
           gameboard[x][i] = "X";
-          break;
         }
       }
     }
+    
   
     destroyRandom(gameboard) {
       let targets = [];

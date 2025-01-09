@@ -99,26 +99,46 @@ isCellOccupied(x, y) {
   }
 
 //modified code for less code repetition and functionality
-pplaceShipsCPU() {
+placeShipsCPU() {
   const shipShapes = ["line", "square", "L", "T", "dot"];
-  const shipLengths = { "line": 5, "square": 4, "L": 3, "T": 3, "dot": 1 };
+  const shipLengths = { line: 5, square: 4, L: 3, T: 3, dot: 1 };
+  let shipCount = 0;
 
-  for (let i = 0; i < 10; i++) {
+  while (shipCount < 10) {
     let shipShape = shipShapes[Math.floor(Math.random() * shipShapes.length)];
     let shipLength = shipLengths[shipShape];
-    let ship = new Ship(`Ship${i + 1}`, shipLength, Math.random().toString(36).substring(2), shipShape);
+    let ship = new Ship(
+      `Ship${shipCount + 1}`,
+      shipLength,
+      Math.random().toString(36).substring(2),
+      shipShape
+    );
 
-    let x, y;
+    let x, y, attempts = 0, maxAttempts = 1000;
+
     do {
       x = Math.floor(Math.random() * 10);
       y = Math.floor(Math.random() * 10);
-    } while (!this.isPlacementValid(x, y, ship) || this.isCellOccupied(x, y));
+      attempts++;
+      if (attempts >= maxAttempts) {
+        console.error(`Keine gültige Position für ${ship.name} gefunden.`);
+        return;
+      }
+    } while (
+      !this.isPlacementValid(x, y, ship) && 
+      !this.isCellOccupied(x, y)
+    );
 
-    this.placeShipShape(ship, x, y);
-    this.ships.push(ship);
+    this.placeShipShape(ship, x, y); 
     console.log(`CPU-Schiff ${ship.name} platziert: ${ship.shipNumber} bei (${x}, ${y})`);
+    this.ships.push(ship);
+    shipCount++;
+    console.log(this.gameboard);
   }
 }
+
+
+
 
 
   //place the new shipforms

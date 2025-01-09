@@ -18,7 +18,7 @@ document.getElementById("playerTitle").textContent = `${player.name}'s Spielfeld
 gameboardPlayer.createGameboard();
 gameboardKI.createGameboard();
 gameboardKI.createShipsCPU();
-//gameboardKI.placeShipsCPU();
+gameboardKI.placeShipsCPU();
 
 //create gameboard
 generateBoard("playerBoard", gameboardPlayer, handlePlayerBoardClick);
@@ -107,6 +107,7 @@ function handleCPUBoardClick(x, y, gameboard, boardDiv) {
     const hit = gameboard.receiveAttack(x, y);
     boardDiv.children[x * 10 + y].style.backgroundColor = hit ? "red" : "blue";
     console.log(hit ? `Treffer auf (${x}, ${y})!` : `Verfehlt auf (${x}, ${y}).`);
+    //updateBoard(boardDiv, gameboard);
 
     if (gameboard.allShipsSunk()) {
       alert("Du hast gewonnen!");
